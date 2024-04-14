@@ -76,7 +76,6 @@ class _PagePrincipaleState extends State<PagePrincipale> with SingleTickerProvid
       vsync: this,
     );
     controleur.forward();
-    var random = Random();
     super.initState();
     animation = Tween<double>(begin: 0, end: 100).animate(controleur);
     animation.addListener(() {
