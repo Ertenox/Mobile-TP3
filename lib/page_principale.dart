@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'batte.dart';
 import 'balle.dart';
-
+import 'dart:math';
 enum Direction { haut, bas, gauche, droite }
 
 class PagePrincipale extends StatefulWidget {
@@ -24,7 +24,12 @@ class _PagePrincipaleState extends State<PagePrincipale> with SingleTickerProvid
   double hauteurBatte = 0;
   double positionBatte = 0;
   int score = 0;
+  int topScore = 0;
   double increment = 5;
+
+  double randX = 1;
+  double randY = 1;
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +44,7 @@ class _PagePrincipaleState extends State<PagePrincipale> with SingleTickerProvid
             Positioned(
               top: 0,
               right: 10,
-              child: Text('Score: $score'),
+              child: Text('Meilleur score : $topScore \n Score: $score'),
             ),
             Positioned(
               top: posY,
@@ -71,16 +76,17 @@ class _PagePrincipaleState extends State<PagePrincipale> with SingleTickerProvid
       vsync: this,
     );
     controleur.forward();
+    var random = Random();
     super.initState();
     animation = Tween<double>(begin: 0, end: 100).animate(controleur);
     animation.addListener(() {
-      safeSetState(()  {
+      safeSetState(() {
         (hDir == Direction.droite)
-            ? posX += increment
-            : posX -= increment;
+            ? posX += ((increment * randX).round())
+            : posX -= ((increment * randX).round());
         (vDir == Direction.bas)
-            ? posY += increment
-            : posY -= increment;
+            ? posY += ((increment * randY).round())
+            : posY -= ((increment * randY).round());
       });
       testerBordures();
     });
@@ -96,20 +102,27 @@ class _PagePrincipaleState extends State<PagePrincipale> with SingleTickerProvid
   void testerBordures() {
     if (posX >= largeur - Balle.diametre) {
       hDir = Direction.gauche;
+      randX = nombreAleatoire();
     } else if (posX <= 0) {
       hDir = Direction.droite;
+      randX = nombreAleatoire();
     }
     if (posY >= hauteur - Balle.diametre - hauteurBatte) {
       print('posX: $posX, positionBatte: $positionBatte, largeurBatte: $largeurBatte');
       if (posX >= positionBatte - Balle.diametre  && posX <= positionBatte + largeurBatte + Balle.diametre) {
         vDir = Direction.haut;
         score++;
+        randY = nombreAleatoire();
       } else {
         afficherMessage(context);
         controleur.stop();
+        if (score > topScore) {
+          topScore = score;
+        }
       }
     } else if (posY <= 0) {
       vDir = Direction.bas;
+      randY = nombreAleatoire();
     }
   }
 
@@ -158,6 +171,12 @@ class _PagePrincipaleState extends State<PagePrincipale> with SingleTickerProvid
         );
       },
     );
+  }
+
+  nombreAleatoire(){
+    Random random = new Random();
+    double result = (random.nextInt(101) + 50)/100;
+    return result;
   }
 
 }
